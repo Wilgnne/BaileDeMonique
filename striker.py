@@ -46,19 +46,21 @@ class striker (Agent):
         # determina a posicao do gol inimigo
         goal_pos = None
         if self.wm.side == WorldModel.SIDE_R:
-            goal_pos = (-55, 0)
+            goal_pos = (-60, 0)
         else:
-            goal_pos = (55, 0)
+            goal_pos = (60, 0)
         
 
         stamina = self.wm.get_stamina()
-        stamina = stamina  / 8000 if type(stamina) != type(None) else 0
+        stamina = stamina  / self.wm.get_stamina_max() if type(stamina) != type(None) else 0
 
         kick_bol = int(self.wm.is_ball_kickable())
 
         view_bol = 1 if self.wm.ball != None else 0
 
         entry = [stamina, kick_bol, view_bol]
+
+        #print("{} entry".format(entry))
 
         if self.wm.play_mode == "play_on":
         
@@ -73,32 +75,41 @@ class striker (Agent):
                 self.wm.ah.dash(50)
             # Girar 30 graus
             elif indexOut == 2:
-                self.wm.ah.turn(30)
+                self.wm.ah.turn(15)
             # Andar em direção a bola
             elif indexOut == 3 and self.wm.ball is not None:
                 if self.wm.ball.direction is not None:
-                    if -7 <= self.wm.ball.direction <= 7:
+                    if -15 <= self.wm.ball.direction <= 15:
                         self.wm.ah.dash(50)
                     else:
                         self.wm.turn_body_to_object(self.wm.ball)
                 else:
-                    self.wm.ah.turn(30)
+                    self.wm.ah.turn(15)
 
             # Chutar a bola
             elif indexOut == 4 and kick_bol:
-                self.wm.kick_to(goal_pos, 1.0)
+                #self.wm.turn_body_to_point((goal_pos[0] - 10, 0))
+                time.sleep(0.01)
+                self.wm.kick_to(goal_pos, 0.0)
 
-
-
-if __name__ == "__main__":
+def initialize(brain:Brain):
     import multiprocessing as mp
     print ("  Spawning agent ...")
 
+    spawn_agent(striker, "Teste", brain=brain)
+
+
+'''
+if __name__ == "__main__":
+    import multiprocessing as mp
+    import IO
+    print ("  Spawning agent ...")
+
     agentthreads = []
-    for agent in range(11):
+    for agent in range(2):
         print ("  Spawning agent %d..." % agent)
 
-        brain = Brain(3, [random.randint(10, 60) for i in range(random.randint(2, 10))], 5)
+        brain = IO.Deserialize("/home/wilgnne/teste/11/12-11-2019 01:30:37.bin")
 
         at = mp.Process(target=spawn_agent, args=(striker, "Teste",), kwargs={"brain":brain})
         at.daemon = True
@@ -120,3 +131,4 @@ if __name__ == "__main__":
         print ("Exiting.")
         sys.exit()
 
+'''
